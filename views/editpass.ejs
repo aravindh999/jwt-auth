@@ -1,0 +1,63 @@
+<%- include('partials/header'); -%>
+
+<form action="/view/editpass">
+    <h2>User Details</h2>
+
+    <label for="oldpass">Old Password</label>
+    <input type="password" name="oldpass" required />
+    <div class="oldpass error"></div>
+
+    <label for="newpass">New Password</label>
+    <input type="password" name="newpass" required />
+    <div class="newpass error"></div>
+
+    <label for="renewpass">Enter New Password</label>
+    <input type="password" name="renewpass" required />
+    <div class="renewpass error"></div>
+
+    <button>Edit Password</button>
+    <button onclick="location.href = '/view';">Cancel</button>
+</form>
+
+<%- include('partials/footer'); -%>
+
+<script>
+    const form = document.querySelector("form");
+    const passError = document.querySelector(".oldpass.error");
+    const newpassError = document.querySelector(".newpass.error");
+    const renewpassError = document.querySelector(".renewpass.error");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        passError.textContent = "";
+        newpassError.textContent = "";
+        renewpassError.textContent = "";
+        // get values
+        const oldpass = form.oldpass.value;
+        const newpass = form.newpass.value;
+        const renewpass = form.renewpass.value;
+
+        try {
+            const result = await fetch("/view/editpass", {
+                method: "PUT",
+                body: JSON.stringify({
+                    oldpass,
+                    newpass,
+                    renewpass,
+                }),
+                headers: { "Content-type": "application/json" },
+            });
+            const data = await result.json();
+            if (data.errors) {
+                passError.textContent = data.errors.oldpass;
+                newpassError.textContent = data.errors.newpass;
+                renewpassError.textContent = data.errors.renewpass;
+            }
+            if (data.user) {
+                location.assign("/");
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    });
+</script>
